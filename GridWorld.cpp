@@ -31,7 +31,7 @@ class TrafficSigns : public StaticObjects{
 
 class TrafficLights : public StaticObjects{
     private:
-        string colour; //use either r,o,g to keep it simple
+        string colour; //use either R,Y,G to keep it simple
         int tick; //make a method that changes the colour if tick goes from 0->4(red->green),4->12(green->orange),12->14(orange->red) on start we set the tick to the border number of the colour, will see how to do it
     
 };
@@ -42,5 +42,5 @@ class Vehicle : public MovingObjects{
     private:
         int speed; //0 for stop, 1 for half speed, 2 for full speed
         string direction; // NSEW system
-        
+
 };
