@@ -1,9 +1,14 @@
+#include "GridWorld.h"
+#include "CreateWorld.h"
+
 #include <iostream>
 #include <string>
 #include <vector>
 #include <cstring>
 #include <unordered_map>
 #include <functional>
+#include <cstdlib>
+#include <ctime>
 using namespace std;
 
 void printHelp(){
@@ -63,9 +68,9 @@ bool parseGPS(int& i, int argc, char* argv[],vector<pair<int,int>>& gpsPoints){
 }
 
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]){
     int seed;
+    bool userSetSeed = false;
     int dimX = 40;
     int dimY = 40;
     int numMovingCars = 3;
@@ -86,16 +91,60 @@ int main(int argc, char* argv[])
             return 0;
         }
         else if (arg == "--seed") {
-            if (!parseIntOption(i, argc, argv, seed)) return 1;
+            if (!parseIntOption(i, argc, argv, seed)) {
+                return 1;
+            }
+            userSetSeed = true;
         }
         else if (arg == "--dimX") {
-            if (!parseIntOption(i, argc, argv, dimX)) return 1;
+            if (!parseIntOption(i, argc, argv, dimX)){
+                return 1;
+            }
         }
         else if (arg == "--dimY") {
-            if (!parseIntOption(i, argc, argv, dimY)) return 1;
+            if (!parseIntOption(i, argc, argv, dimY)){
+                return 1;
+            }
+        }
+        else if (arg == "--numMovingCars") {
+            if (!parseIntOption(i, argc, argv, numMovingCars)){
+                return 1;
+            }
+        }
+        else if (arg == "--numMovingBikes") {
+            if (!parseIntOption(i, argc, argv, numMovingBikes)){
+                return 1;
+            }
+        }
+        else if (arg == "--numParkedCars") {
+            if (!parseIntOption(i, argc, argv, numParkedCars)){
+                return 1;
+            }
+        }
+        else if (arg == "--numStopSigns") {
+            if (!parseIntOption(i, argc, argv, numStopSigns)){
+                return 1;
+            }
+        }
+        else if (arg == "--numTrafficLights") {
+            if (!parseIntOption(i, argc, argv, numTrafficLights)){
+                return 1;
+            }
+        }
+        else if (arg == "--simulationTicks") {
+            if (!parseIntOption(i, argc, argv, simulationTicks)){
+                return 1;
+            }
+        }
+        else if (arg == "--minConfidenceThreshold") {
+            if (!parseIntOption(i, argc, argv, minConfidenceThreshold)){
+                return 1;
+            }
         }
         else if (arg == "--gps") {
-            if (!parseGPS(i, argc, argv, gpsPoints)) return 1;
+            if (!parseGPS(i, argc, argv, gpsPoints)){
+                return 1;
+            }
         }
         else {
             cerr << "Unknown option: " << arg << endl;
@@ -108,7 +157,25 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    if (!userSetSeed) {
+        seed = static_cast<int>(time(nullptr));
+    }
+
     //we start from here ,ok?
+
+    Grid map = createWorld(seed,dimX,dimY,numMovingCars,numMovingBikes,numParkedCars,numStopSigns,numTrafficLights);
+    for(int i=0; i<dimX;i++){
+        for(int j = 0; j < dimY; j++){
+            if(map[i][j].movingObjects.empty() && map[i][j].staticObjects.empty()){
+                cout << ".";
+            } else if(!map[i][j].movingObjects.empty()){
+                cout << map[i][j].movingObjects[0]->getGlyph();
+            } else if(!map[i][j].staticObjects.empty()){
+                cout << map[i][j].staticObjects[0]->getGlyph();
+            }
+        }
+        cout << "\n";
+    }
 
     return 0;
 }
