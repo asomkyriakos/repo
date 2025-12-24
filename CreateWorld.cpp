@@ -10,6 +10,9 @@
 #include <ctime>
 using namespace std;
 
+//To do:
+//Add the SelfDrivingCar in the map
+//Add the goal States and make the functions for the self driving car
 
 Grid createWorld(
     int seed,
