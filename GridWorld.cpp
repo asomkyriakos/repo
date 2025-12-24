@@ -42,5 +42,6 @@ class Vehicle : public MovingObjects{
     private:
         int speed; //0 for stop, 1 for half speed, 2 for full speed
         string direction; // NSEW system
+        string type; //either car or bike (C,B)
 
 };
