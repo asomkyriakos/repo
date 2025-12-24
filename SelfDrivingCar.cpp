@@ -60,12 +60,12 @@ class Car{
         //reasons to decelarate
 
         void senseTrafficLight(){ //feed this the traffic light you saw
-            string traffic = 'r'; //dummy data
+            string traffic = 'R'; //dummy data
             int distance_of_traffic_light = 3; //dummy data
-            if((traffic == 'r' || traffic == 'o') && distance_of_traffic_light <= 3){
-                if(traffic == 'r'){
+            if((traffic == 'R' || traffic == 'Y') && distance_of_traffic_light <= 3){
+                if(traffic == 'R'){
                     decelarate();
-                }else if(traffic == 'o' && distance_of_traffic_light == 3){
+                }else if(traffic == 'Y' && distance_of_traffic_light == 3){
                     decelerate();
                 }
                 
