@@ -15,3 +15,5 @@ make clean
 Στη main έχω προσθέσει κάτι λίγο για έλεγχο.
 
 Μου βγάζει δύο warnings μόνο. Μήπως να αλλάξουμε στο CreatWorld.cpp το char direction; σε char direction = 'N'; στις γραμμές 33,53.
+
+Test
