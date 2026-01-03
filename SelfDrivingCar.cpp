@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 using namespace std;
+#include "Sensors.h"
 //any dummy data is to be deleted later, they are just for showcase
 
 //either we use mahattan or we make something less effiecient that first does the horizontal movement and then the vertican(the 2nd if easier)

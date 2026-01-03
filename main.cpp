@@ -1,5 +1,6 @@
 #include "GridWorld.h"
 #include "CreateWorld.h"
+#include "Sensors.h"
 
 #include <iostream>
 #include <string>
@@ -176,6 +177,30 @@ int main(int argc, char* argv[]){
         }
         cout << "\n";
     }
+
+
+    // Position of our car.
+    int carX = 5, carY = 5; 
+    char carDir = 'N'; 
+
+    // Create a sensor.
+    LidarSensor lidar;
+    cout << "\n--- scanning with Lidar at (5,5) ---\n";
+
+    // Scan map.
+    vector<SensorReading> readings = lidar.scan(carX, carY, carDir, map);
+
+    // Print what was detected.
+    if(readings.empty()) {
+        cout << "No objects detected in range.\n";
+    } else {
+        for (const auto& r : readings) {
+            cout << "Found: " << r.type << " | ID: " << r.objectId 
+                << " | Distance: " << r.distance 
+                << " | Confidence: " << r.confidence << endl;
+        }
+    }
+
 
     return 0;
 }

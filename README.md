@@ -8,3 +8,10 @@ g++ -std=c++17 -Wall main.cpp CreateWorld.cpp GridWorld.cpp -o simulation
 make 
 - And to clear cache of executables:
 make clean
+
+
+// TO BE DELETED //
+Πρόσθεσα στο makefile το αρχείο, στη main και το SelfDrivingCar τη βιβλιοθήκη.
+Στη main έχω προσθέσει κάτι λίγο για έλεγχο.
+
+Μου βγάζει δύο warnings μόνο. Μήπως να αλλάξουμε στο CreatWorld.cpp το char direction; σε char direction = 'N'; στις γραμμές 33,53.
