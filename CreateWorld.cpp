@@ -30,7 +30,7 @@ Grid createWorld(
         int x = rand() % dimX;
         int y = rand() % dimY;
         int speed = rand() % 3;
-        char direction;
+        char direction = 'N';
         switch((rand()%4)+1){
             case 1:  direction = 'N'; y--; break;
             case 2:  direction = 'S'; y++; break;
@@ -50,7 +50,7 @@ Grid createWorld(
         int x = rand() % dimX;
         int y = rand() % dimY;
         int speed = rand() % 3;
-        char direction;
+        char direction = 'N';
         switch((rand()%4)+1){
             case 1: direction = 'N'; y--; break;
             case 2: direction = 'S'; y++; break;
