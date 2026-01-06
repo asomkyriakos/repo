@@ -1,7 +1,8 @@
 #include "GridWorld.h"
 #include "CreateWorld.h"
 #include "Sensors.h"
-
+#include "SelfDrivingCar.h"
+#include "FuseSensorData.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -163,44 +164,101 @@ int main(int argc, char* argv[]){
     }
 
     //we start from here ,ok?
-
+    int carX = 0, carY = 0; 
+    char carDir = 'N';
     Grid map = createWorld(seed,dimX,dimY,numMovingCars,numMovingBikes,numParkedCars,numStopSigns,numTrafficLights);
     for(int i=0; i<dimX;i++){
         for(int j = 0; j < dimY; j++){
-            if(map[i][j].movingObjects.empty() && map[i][j].staticObjects.empty()){
+            if(map[i][j].movingObjects.empty() && map[i][j].staticObjects.empty() && map[i][j].car.empty()){
                 cout << ".";
             } else if(!map[i][j].movingObjects.empty()){
                 cout << map[i][j].movingObjects[0]->getGlyph();
             } else if(!map[i][j].staticObjects.empty()){
                 cout << map[i][j].staticObjects[0]->getGlyph();
+            }else if(!map[i][j].car.empty()){
+                cout << map[i][j].car[0]->getGlyph();
+                carX = i;
+                carY = j;
+                carDir = map[i][j].car[0]->getDirection();
             }
         }
         cout << "\n";
     }
 
 
-    // Position of our car.
-    int carX = 5, carY = 5; 
-    char carDir = 'N'; 
-
     // Create a sensor.
     LidarSensor lidar;
-    cout << "\n--- scanning with Lidar at (5,5) ---\n";
+    cout << "\n--- scanning with Lidar at (" << carX << "," << carY << ") ---\n";
 
     // Scan map.
-    vector<SensorReading> readings = lidar.scan(carX, carY, carDir, map);
+    vector<SensorReading> lidarReadings = lidar.scan(carX, carY, carDir, map);
 
     // Print what was detected.
-    if(readings.empty()) {
+    if(lidarReadings.empty()) {
         cout << "No objects detected in range.\n";
     } else {
-        for (const auto& r : readings) {
+        for (const auto& r : lidarReadings) {
             cout << "Found: " << r.type << " | ID: " << r.objectId 
                 << " | Distance: " << r.distance 
                 << " | Confidence: " << r.confidence << endl;
         }
     }
 
+    RadarSensor radar;
+
+    cout << "\n--- scanning with Radar at (" << carX << "," << carY << ") ---\n";
+
+    vector<SensorReading> radarReadings = radar.scan(carX, carY, carDir, map);
+
+    if(radarReadings.empty()) {
+        cout << "No objects detected in range.\n";
+    } else {
+        for (const auto& r : radarReadings) {
+            cout << "Found: " << r.type << " | ID: " << r.objectId 
+                << " | Distance: " << r.distance 
+                << " | Confidence: " << r.confidence
+                << " | Speed: " << r.speed 
+                << " | Direction: " << r.direction 
+                << " | Info: " << r.info << endl;
+        }
+    }
+
+    CameraSensor camera;
+
+    cout << "\n--- scanning with Camera at (" << carX << "," << carY << ") ---\n";
+
+    vector<SensorReading> cameraReadings = camera.scan(carX, carY, carDir, map);
+
+    if(cameraReadings.empty()) {
+        cout << "No objects detected in range.\n";
+    } else {
+        for (const auto& r : cameraReadings) {
+            cout << "Found: " << r.type << " | ID: " << r.objectId 
+                << " | Distance: " << r.distance 
+                << " | Confidence: " << r.confidence 
+                << " | Speed: " << r.speed 
+                << " | Direction: " << r.direction 
+                << " | Info: " << r.info << endl;
+        }
+    }
+
+    cout <<"\n";
+
+    Fuse fusedLidarReadings = fuseLidarData(lidarReadings, 0.4);
+    Fuse fusedRadarReadings = fuseRadarData(radarReadings, 0.4);
+    Fuse fusedCameraReadings =fuseCameraData(cameraReadings, 0.4);
+
+    Fuse fusedAll = fuseAllSensors(fusedLidarReadings,fusedRadarReadings,fusedCameraReadings);
+
+    for (const auto& [id, vec] : fusedAll) {
+        for (const auto& d : vec) {
+            std::cout << " Id: " <<d.objectId << " | Type: " << d.type << " | Distance: "
+                    << d.distance << " | Confidence: " << d.confidence << " | X: "
+                    << d.x << " | Y: " << d.y << " | Speed: "
+                    << d.speed << " | Dir: " << d.direction
+                    << " | Info: " << d.info << "\n";
+        }
+    }
 
     return 0;
 }
