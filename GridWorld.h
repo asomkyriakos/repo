@@ -61,6 +61,7 @@ private:
 public:
     TrafficLights(string id, string glyph, int x, int y, char col, int tck);
     ~TrafficLights();
+    char getColour() const;
 };
 
 // Moving vehicles (cars and bikes)
