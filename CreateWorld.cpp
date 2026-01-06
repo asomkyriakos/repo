@@ -1,5 +1,6 @@
 #include "CreateWorld.h"
 #include "GridWorld.h"  
+#include "SelfDrivingCar.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -23,13 +24,27 @@ Grid createWorld(
     srand(seed);
     Grid world(dimX, vector<Cell>(dimY));
 
+    //Self Driving Car
+    int x = rand() % dimX;
+    int y = rand() % dimY;
+    char direction = 'N';
+    switch((rand()%4)+1){
+        case 1:  direction = 'N'; y--; break;
+        case 2:  direction = 'S'; y++; break;
+        case 3:  direction = 'E'; x++; break;
+        case 4:  direction = 'W'; x--; break;
+    }
+    char glyph = '@';
+    Car* selfDrivingCar = new Car(0 ,direction , glyph);
+    world[x][y].car.push_back(selfDrivingCar);
+
     //Moving Cars
     for(int i=0; i< numMovingCars ; i++){
         string id= "Car"+to_string(i);
         string glyph="C";
         int x = rand() % dimX;
         int y = rand() % dimY;
-        int speed = rand() % 3;
+        int speed = (rand() % 2) +1;
         char direction = 'N';
         switch((rand()%4)+1){
             case 1:  direction = 'N'; y--; break;
@@ -49,7 +64,7 @@ Grid createWorld(
         string glyph = "B";
         int x = rand() % dimX;
         int y = rand() % dimY;
-        int speed = rand() % 3;
+        int speed = (rand() % 2)+1;
         char direction = 'N';
         switch((rand()%4)+1){
             case 1: direction = 'N'; y--; break;
