@@ -67,7 +67,13 @@ std::vector<SensorReading> RadarSensor::scan(int carX, int carY, char carDir, co
         if (tx >= 0 && tx < (int)world.size() && ty >= 0 && ty < (int)world[0].size()) {
             // Only moving objects.
             for (auto* obj : world[tx][ty].movingObjects) {
-                readings.push_back({obj->getId(), "Moving", (double)step, calculateConfidence(step), tx, ty, 0, ' ', ""});
+                int speed = 0;
+                char direction='N';
+                if (auto* vehicle = dynamic_cast<Vehicle*>(obj)) {
+                    speed = vehicle->getSpeed();
+                    direction = vehicle->getDirection();
+                }
+                readings.push_back({obj->getId(), "Moving", (double)step, calculateConfidence(step), tx, ty, speed, direction, ""});
             }
         }
     }
@@ -103,10 +109,21 @@ std::vector<SensorReading> CameraSensor::scan(int carX, int carY, char carDir, c
 
                 // Detects everything.
                 for (auto* obj : cell.movingObjects) {
-                    readings.push_back({obj->getId(), "Moving", (double)dist, calculateConfidence(dist), tx, ty, 0, ' ', ""});
+                    int speed = 0;
+                    char direction='N';
+                    if (auto* vehicle = dynamic_cast<Vehicle*>(obj)) {
+                        speed = vehicle->getSpeed();
+                        direction = vehicle->getDirection();
+                    }
+                    readings.push_back({obj->getId(), "Moving", (double)dist, calculateConfidence(dist), tx, ty, speed, direction, ""});
                 }
                 for (auto* obj : cell.staticObjects) {
-                    readings.push_back({obj->getId(), "Static", (double)dist, calculateConfidence(dist), tx, ty, 0, ' ', "Detected Info"});
+                    char colour = ' '; // default
+                    if (auto* light = dynamic_cast<TrafficLights*>(obj)) {
+                        colour = light->getColour();
+                    }
+
+                    readings.push_back({obj->getId(), "Static", (double)dist, calculateConfidence(dist),tx, ty, 0, ' ', std::string(1, colour)});
                 }
             }
         }
