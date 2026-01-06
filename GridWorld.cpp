@@ -65,6 +65,9 @@ TrafficLights::TrafficLights(string id, string glyph, int x, int y, char col, in
 TrafficLights::~TrafficLights() { 
     cout << "Lights Deleted\n"; 
 }
+char TrafficLights::getColour()const {
+    return colour;
+}
 
 // Vehicle
 Vehicle::Vehicle(string id, string glyph, int x, int y, int sp, char dir, char t): MovingObjects(id, glyph, x, y), speed(sp), direction(dir), type(t) {
