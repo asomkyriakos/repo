@@ -4,6 +4,9 @@
 #include <vector>
 #include <string>
 
+struct Cell; 
+using Grid = std::vector<std::vector<Cell>>;
+
 // Struct data.
 struct SensorReading {
     std::string objectId;
