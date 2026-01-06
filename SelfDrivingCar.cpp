@@ -1,84 +1,46 @@
+#include "SelfDrivingCar.h"
 #include <iostream>
 #include <string>
 #include <vector>
-using namespace std;
-#include "Sensors.h"
-//any dummy data is to be deleted later, they are just for showcase
 
-//either we use mahattan or we make something less effiecient that first does the horizontal movement and then the vertican(the 2nd if easier)
+// Constructor / Destructor
+Car::Car(int spe, char dir, char gly) : speed(spe), direction(dir), glyph(gly) {}
+Car::~Car() {}
 
-class Car{
-    private:
-        int speed; //0,1,2
-        string direction; //NSEW
+char Car::getGlyph() const { 
+    return glyph; 
+}
+char Car:: getDirection() const{
+    return direction;
+}
 
-    public:
-        void accelerate(){
-            if(this.speed < 2){
-                this.speed++;
-            }
-        }
-        void decelerate(){
-            if(this.speed >0){
-                this.speed--;
-            }
-        }
+// Speed control
+void Car::accelerate() { if (speed < 2) speed++; }
+void Car::decelerate() { if (speed > 0) speed--; }
 
-        //collections data methods
+// Sensor data
+void Car::collectSensorData() {}
+void Car::syncNavigationSystem() {}
 
-        void collectSensorData(){ //collects data
+// Movement & navigation
+void Car::executeMovement() {}
+void Car::NavigationSystem() {}
 
-        }
+// Data processing
+void Car::fuseSensorData() {}
+void Car::makeDecision() {}
 
-        void syncNavigationSystem(){ //feed this the collected data from the function collectSensorData
+// Heuristics
+int Car::manhattan() { return 0; }
 
-        }
-        
-        void executeMovement(){ //feed this 1)position on grid, 2)mahattan heuristics, and 3)a true or false value about traffic lights or near goals(so it decelarates)
+// Deceleration conditions
+void Car::senseTrafficLight(char traffic, int distance) {
+    if ((traffic == 'R' || traffic == 'Y') && distance <= 3) {
+        if (traffic == 'R') decelerate();
+        else if (traffic == 'Y' && distance == 3) decelerate();
+    }
+}
 
-        }
-
-        //data management
-
-        void NavigationSystem(){ //feed this x,y coordinates
-
-        }
-
-        void fuseSensorData(){
-
-        }
-
-        void makeDecision(){
-
-        }
-
-        //manhattan heuristics
-
-        void manhattan(){ //feed this x,y coordinates and make this an int function
-            
-        }
-
-        //reasons to decelarate
-
-        void senseTrafficLight(){ //feed this the traffic light you saw
-            string traffic = 'R'; //dummy data
-            int distance_of_traffic_light = 3; //dummy data
-            if((traffic == 'R' || traffic == 'Y') && distance_of_traffic_light <= 3){
-                if(traffic == 'R'){
-                    decelarate();
-                }else if(traffic == 'Y' && distance_of_traffic_light == 3){
-                    decelerate();
-                }
-                
-            }
-        }
-        void nearGoal(){ //feed this the distance from target
-            int distance_of_goal =5; //dummy data
-            if(distance_of_goal <= 5){
-                decelerate();
-            }
-        }
-
-        //reasons to accelarate
-
-};
+void Car::nearGoal(int distance) {
+    if (distance <= 5) decelerate();
+}
