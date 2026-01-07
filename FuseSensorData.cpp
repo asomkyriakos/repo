@@ -141,30 +141,67 @@ Fuse fuseCameraData(const std::vector<SensorReading>& readings, double minConfid
     return fused;
 }
 
-Fuse fuseAllSensors(const Fuse& lidar, const Fuse& radar, const Fuse& camera) {
+Fuse fuseAllSensors(const Fuse& lidar,const Fuse& radar,const Fuse& camera){
     Fuse finalFused;
 
-    for (const auto& sensorSet : {lidar, radar, camera}) {
-        for (const auto& [id, vec] : sensorSet) {
-            FusedData d;
-            d.objectId = id;
+    auto initIfNeeded = [&](const std::string& id) -> FusedData& {
+        if (finalFused[id].empty()) {
+            FusedData d{};
+            d.objectId  = id;
+            d.type      = "";
+            d.distance  = 0;
+            d.confidence= 0;
+            d.x = -1;
+            d.y = -1;
+            d.speed = -1;
+            d.direction = ' ';
+            d.info = "";
+            finalFused[id].push_back(d);
+        }
+        return finalFused[id][0];
+    };
 
-            if (!finalFused[id].empty()) d = finalFused[id][0];
-
-            for (const auto& f : vec) {
-                d.type = f.type;
-                d.distance = f.distance;
+   
+    for (const auto& [id, vec] : lidar) {
+        auto& d = initIfNeeded(id);
+        for (const auto& f : vec) {
+            if (f.confidence >= d.confidence) {
+                d.distance   = f.distance;
+                d.type       = f.type;
                 d.confidence = f.confidence;
-                d.x = f.x;
-                d.y = f.y;
+            }
+        }
+    }
 
-                if (f.speed != 0 || f.type == "Moving") d.speed = f.speed;
-                if (f.direction != ' ') d.direction = f.direction;
-                if (!f.info.empty()) d.info = f.info;
+    
+    for (const auto& [id, vec] : radar) {
+        auto& d = initIfNeeded(id);
+        for (const auto& f : vec) {
+            if (f.confidence >= d.confidence) {
+                d.distance   = f.distance;
+                d.confidence = f.confidence;
+            }
+            if (f.speed > 0) d.speed = f.speed;
+            if (f.direction != ' ') d.direction = f.direction;
+        }
+    }
+
+    
+    for (const auto& [id, vec] : camera) {
+        auto& d = initIfNeeded(id);
+        for (const auto& f : vec) {
+            if (f.confidence >= d.confidence) {
+                d.distance   = f.distance;
+                d.type       = f.type;
+                d.confidence = f.confidence;
             }
 
-            finalFused[id].clear();
-            finalFused[id].push_back(d);
+            d.x = f.x;
+            d.y = f.y;
+
+            if (f.speed > 0) d.speed = f.speed;
+            if (f.direction != ' ') d.direction = f.direction;
+            if (!f.info.empty()) d.info = f.info;
         }
     }
 
