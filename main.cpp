@@ -185,6 +185,8 @@ int main(int argc, char* argv[]){
         cout << "\n";
     }
 
+    double newMinConfidenceThreshold = static_cast<double>(minConfidenceThreshold)*0.01;
+
 
     // Create a sensor.
     LidarSensor lidar;
@@ -200,6 +202,8 @@ int main(int argc, char* argv[]){
         for (const auto& r : lidarReadings) {
             cout << "Found: " << r.type << " | ID: " << r.objectId 
                 << " | Distance: " << r.distance 
+                << " | X: " << r.x
+                << " | Y: " << r.y
                 << " | Confidence: " << r.confidence << endl;
         }
     }
@@ -217,6 +221,8 @@ int main(int argc, char* argv[]){
             cout << "Found: " << r.type << " | ID: " << r.objectId 
                 << " | Distance: " << r.distance 
                 << " | Confidence: " << r.confidence
+                << " | X: " << r.x
+                << " | Y: " << r.y
                 << " | Speed: " << r.speed 
                 << " | Direction: " << r.direction 
                 << " | Info: " << r.info << endl;
@@ -237,6 +243,8 @@ int main(int argc, char* argv[]){
                 << " | Distance: " << r.distance 
                 << " | Confidence: " << r.confidence 
                 << " | Speed: " << r.speed 
+                << " | X: " << r.x
+                << " | Y: " << r.y
                 << " | Direction: " << r.direction 
                 << " | Info: " << r.info << endl;
         }
@@ -244,9 +252,9 @@ int main(int argc, char* argv[]){
 
     cout <<"\n";
 
-    Fuse fusedLidarReadings = fuseLidarData(lidarReadings, 0.4);
-    Fuse fusedRadarReadings = fuseRadarData(radarReadings, 0.4);
-    Fuse fusedCameraReadings =fuseCameraData(cameraReadings, 0.4);
+    Fuse fusedLidarReadings = fuseLidarData(lidarReadings, newMinConfidenceThreshold);
+    Fuse fusedRadarReadings = fuseRadarData(radarReadings, newMinConfidenceThreshold);
+    Fuse fusedCameraReadings =fuseCameraData(cameraReadings, newMinConfidenceThreshold);
 
     Fuse fusedAll = fuseAllSensors(fusedLidarReadings,fusedRadarReadings,fusedCameraReadings);
 
@@ -259,6 +267,8 @@ int main(int argc, char* argv[]){
                     << " | Info: " << d.info << "\n";
         }
     }
+
+    cout << newMinConfidenceThreshold <<endl;
 
     return 0;
 }
