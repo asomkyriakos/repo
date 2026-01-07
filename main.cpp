@@ -3,6 +3,7 @@
 #include "Sensors.h"
 #include "SelfDrivingCar.h"
 #include "FuseSensorData.h"
+#include "DecisionMaking.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -268,7 +269,9 @@ int main(int argc, char* argv[]){
         }
     }
 
-    cout << newMinConfidenceThreshold <<endl;
+
+    char move =decideNextMove(carX,carY,fusedAll,gpsPoints);
+    cout << move <<endl;
 
     return 0;
 }
