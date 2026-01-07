@@ -50,6 +50,7 @@ class TrafficSigns : public StaticObject {
 public:
     TrafficSigns(string id, string glyph, int x, int y, char tp);
     ~TrafficSigns();
+    char getType() const;
 };
 
 // Traffic lights

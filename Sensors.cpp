@@ -19,7 +19,9 @@ double Sensor::calculateConfidence(int dist) {
 }
 
 // Lidar Sensor.
-LidarSensor::LidarSensor() : Sensor(9, 0.99, "Lidar") {}
+LidarSensor::LidarSensor() : Sensor(9, 0.99, "Lidar") {
+    cout << "[+LIDAR:" << sensorName << "] Lidar sensor ready - Sensing with pew pews!" << endl;
+}
 
 std::vector<SensorReading> LidarSensor::scan(int carX, int carY, char carDir, const Grid& world) {
     std::vector<SensorReading> readings;
@@ -43,7 +45,9 @@ std::vector<SensorReading> LidarSensor::scan(int carX, int carY, char carDir, co
 }
 
 // Radar Sensor.
-RadarSensor::RadarSensor() : Sensor(12, 0.95, "Radar") {}
+RadarSensor::RadarSensor() : Sensor(12, 0.95, "Radar") {
+    cout << "[+RADAR:" << sensorName << "] Radar sensor ready - I'm a Radio star!" << endl;
+}
 
 std::vector<SensorReading> RadarSensor::scan(int carX, int carY, char carDir, const Grid& world) {
     std::vector<SensorReading> readings;
@@ -80,13 +84,15 @@ std::vector<SensorReading> RadarSensor::scan(int carX, int carY, char carDir, co
     return readings;
 }
 
-// Camera Sensor
-CameraSensor::CameraSensor() : Sensor(7, 0.87, "Camera") {}
+// Camera Sensor.
+CameraSensor::CameraSensor() : Sensor(7, 0.87, "Camera") {
+    cout << "[+CAMERA:" << sensorName << "] Camera sensor ready - Say cheese!" << endl;
+}
 
 std::vector<SensorReading> CameraSensor::scan(int carX, int carY, char carDir, const Grid& world) {
     std::vector<SensorReading> readings;
 
-    // 7x7 in front of the car
+    // 7x7 in front of the car.
     for (int offsetX = -3; offsetX <= 3; ++offsetX) {
         for (int offsetY = 1; offsetY <= 7; ++offsetY) {
             int tx = carX, ty = carY;
@@ -108,22 +114,35 @@ std::vector<SensorReading> CameraSensor::scan(int carX, int carY, char carDir, c
                 int dist = std::abs(carX - tx) + std::abs(carY - ty);
 
                 // Detects everything.
-                for (auto* obj : cell.movingObjects) {
-                    int speed = 0;
-                    char direction='N';
-                    if (auto* vehicle = dynamic_cast<Vehicle*>(obj)) {
-                        speed = vehicle->getSpeed();
-                        direction = vehicle->getDirection();
-                    }
-                    readings.push_back({obj->getId(), "Moving", (double)dist, calculateConfidence(dist), tx, ty, speed, direction, ""});
-                }
                 for (auto* obj : cell.staticObjects) {
-                    char colour = ' '; // default
-                    if (auto* light = dynamic_cast<TrafficLights*>(obj)) {
-                        colour = light->getColour();
-                    }
+                    SensorReading r;
+                    r.objectId = obj->getId();
+                    r.distance = (double)dist;
+                    r.confidence = calculateConfidence(dist);
+                    r.x = tx; r.y = ty;
 
-                    readings.push_back({obj->getId(), "Static", (double)dist, calculateConfidence(dist),tx, ty, 0, ' ', std::string(1, colour)});
+                    // Trafficlight Check.
+                    TrafficLights* tl = dynamic_cast<TrafficLights*>(obj);
+                    if (tl) {
+                        r.type = "TrafficLight";
+                        r.info = "Color: ";
+                        r.info += tl->getColour();
+                    }
+                    // Sign Check.
+                    else if (dynamic_cast<TrafficSigns*>(obj)) {
+                        r.type = "TrafficSign";
+                        r.info = "Text: STOP";
+                    }
+                    else {
+                        r.type = "StaticObstacle";
+                        r.info = "None";
+                    }
+                    readings.push_back(r);
+                }
+
+                // Moving Objects Check.
+                for (auto* obj : cell.movingObjects) {
+                    readings.push_back({obj->getId(), "MovingObject", (double)dist, calculateConfidence(dist), tx, ty, 0, ' ', "Detected"});
                 }
             }
         }

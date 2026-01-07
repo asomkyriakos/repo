@@ -57,6 +57,9 @@ TrafficSigns::TrafficSigns(string id, string glyph, int x, int y, char tp): Stat
 TrafficSigns::~TrafficSigns() { 
     cout << "Signs Deleted\n"; 
 }
+char TrafficSigns::getType()const {
+    return type;
+}
 
 // TrafficLights
 TrafficLights::TrafficLights(string id, string glyph, int x, int y, char col, int tck): StaticObject(id, glyph, x, y), colour(col), tick(tck) {
