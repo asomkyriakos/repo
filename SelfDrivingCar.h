@@ -19,6 +19,7 @@ public:
     
     char getGlyph() const;
     char getDirection() const;
+    char getSpeed() const;
 
     // Speed control
     void accelerate();
