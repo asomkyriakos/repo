@@ -2,6 +2,7 @@
 #include <cmath>
 #include <algorithm>
 #include <cstdlib>
+#include <iostream>
 
 Sensor::Sensor(int r, double acc, std::string name) : range(r), baseAccuracy(acc), sensorName(name) {}
 
@@ -149,3 +150,4 @@ std::vector<SensorReading> CameraSensor::scan(int carX, int carY, char carDir, c
     }
     return readings;
 }
+
