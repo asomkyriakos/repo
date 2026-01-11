@@ -14,6 +14,10 @@ char Car:: getDirection() const{
     return direction;
 }
 
+char Car:: getSpeed() const{
+    return speed;
+}
+
 // Speed control
 void Car::accelerate() { if (speed < 2) speed++; }
 void Car::decelerate() { if (speed > 0) speed--; }
