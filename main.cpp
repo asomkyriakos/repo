@@ -167,6 +167,7 @@ int main(int argc, char* argv[]){
     //we start from here ,ok?
     int carX = 0, carY = 0; 
     char carDir = 'N';
+    int carSpeed = 0;
     Grid map = createWorld(seed,dimX,dimY,numMovingCars,numMovingBikes,numParkedCars,numStopSigns,numTrafficLights);
     for(int i=0; i<dimX;i++){
         for(int j = 0; j < dimY; j++){
@@ -181,6 +182,7 @@ int main(int argc, char* argv[]){
                 carX = i;
                 carY = j;
                 carDir = map[i][j].car[0]->getDirection();
+                carSpeed = map[i][j].car[0]->getSpeed();
             }
         }
         cout << "\n";
@@ -270,8 +272,8 @@ int main(int argc, char* argv[]){
     }
 
 
-    char move =decideNextMove(carX,carY,fusedAll,gpsPoints);
-    cout << move <<endl;
+    auto move = decideNextMove(carX, carY, carDir, carSpeed, fusedAll, gpsPoints);
+    cout << "Direction: " << move.first << ", Speed Action: " << move.second << endl;
 
     return 0;
 }
