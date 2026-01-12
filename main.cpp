@@ -4,6 +4,7 @@
 #include "SelfDrivingCar.h"
 #include "FuseSensorData.h"
 #include "DecisionMaking.h"
+#include "UpdateWorld.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -12,6 +13,8 @@
 #include <functional>
 #include <cstdlib>
 #include <ctime>
+#include <thread> //for wait
+#include <chrono> //for wait
 using namespace std;
 
 void printHelp(){
@@ -68,6 +71,43 @@ bool parseGPS(int& i, int argc, char* argv[],vector<pair<int,int>>& gpsPoints){
     }
 
     return true;
+}
+
+// Function to Print Map to Terminal.
+void printMap(int dimX, int dimY, const Grid& map) {
+
+    // Upper Bound.
+    for(int i=0; i<dimX+2; i++) {
+        cout << "-";
+    }
+    cout << endl;
+
+    for(int j = 0; j < dimY; j++){
+        // Left Bound.
+        cout << "|";
+
+        for(int i = 0; i < dimX; i++){ 
+            if(!map[i][j].car.empty()){
+                // Auto Car.
+                cout << map[i][j].car[0]->getGlyph();
+            } else if(!map[i][j].movingObjects.empty()){
+                // Other Cars.
+                cout << map[i][j].movingObjects[0]->getGlyph();
+            } else if(!map[i][j].staticObjects.empty()){
+                // Static Objects (Signs, Traffic Lights).
+                cout << map[i][j].staticObjects[0]->getGlyph();
+            } else {
+                // Nothing
+                cout << ".";
+            }
+        }
+        // Right Bound.
+        cout << "|" << endl;
+    }
+    
+    // Down Bound.
+    for(int i=0; i<dimX+2; i++) cout << "-";
+    cout << endl;
 }
 
 
@@ -164,116 +204,167 @@ int main(int argc, char* argv[]){
         seed = static_cast<int>(time(nullptr));
     }
 
+    // Create Map.
+    Grid map = createWorld(seed, dimX, dimY, numMovingCars, numMovingBikes, numParkedCars, numStopSigns, numTrafficLights);
+
     //we start from here ,ok?
     int carX = 0, carY = 0; 
     char carDir = 'N';
     int carSpeed = 0;
-    Grid map = createWorld(seed,dimX,dimY,numMovingCars,numMovingBikes,numParkedCars,numStopSigns,numTrafficLights);
-    for(int i=0; i<dimX;i++){
+    Car* myCarPtr = nullptr;
+    
+    bool found = false;
+    for(int i = 0; i < dimX; i++){
         for(int j = 0; j < dimY; j++){
-            if(map[i][j].movingObjects.empty() && map[i][j].staticObjects.empty() && map[i][j].car.empty()){
-                cout << ".";
-            } else if(!map[i][j].movingObjects.empty()){
-                cout << map[i][j].movingObjects[0]->getGlyph();
-            } else if(!map[i][j].staticObjects.empty()){
-                cout << map[i][j].staticObjects[0]->getGlyph();
-            }else if(!map[i][j].car.empty()){
-                cout << map[i][j].car[0]->getGlyph();
+            if(!map[i][j].car.empty()){
+                myCarPtr = map[i][j].car[0];
                 carX = i;
                 carY = j;
-                carDir = map[i][j].car[0]->getDirection();
-                carSpeed = map[i][j].car[0]->getSpeed();
+                carDir = myCarPtr->getDirection();
+                carSpeed = myCarPtr->getSpeed();
+                found = true;
+                break;
             }
         }
-        cout << "\n";
+        if(found) {
+            break;
+        }
+    }
+
+    if (!myCarPtr) {
+        cerr << "Error: Self-driving car not found in generated world!" << endl;
+        return 1;
     }
 
     double newMinConfidenceThreshold = static_cast<double>(minConfidenceThreshold)*0.01;
 
-
-    // Create a sensor.
+    // Initialize Sensors.
     LidarSensor lidar;
-    cout << "\n--- scanning with Lidar at (" << carX << "," << carY << ") ---\n";
-
-    // Scan map.
-    vector<SensorReading> lidarReadings = lidar.scan(carX, carY, carDir, map);
-
-    // Print what was detected.
-    if(lidarReadings.empty()) {
-        cout << "No objects detected in range.\n";
-    } else {
-        for (const auto& r : lidarReadings) {
-            cout << "Found: " << r.type << " | ID: " << r.objectId 
-                << " | Distance: " << r.distance 
-                << " | X: " << r.x
-                << " | Y: " << r.y
-                << " | Confidence: " << r.confidence << endl;
-        }
-    }
-
     RadarSensor radar;
-
-    cout << "\n--- scanning with Radar at (" << carX << "," << carY << ") ---\n";
-
-    vector<SensorReading> radarReadings = radar.scan(carX, carY, carDir, map);
-
-    if(radarReadings.empty()) {
-        cout << "No objects detected in range.\n";
-    } else {
-        for (const auto& r : radarReadings) {
-            cout << "Found: " << r.type << " | ID: " << r.objectId 
-                << " | Distance: " << r.distance 
-                << " | Confidence: " << r.confidence
-                << " | X: " << r.x
-                << " | Y: " << r.y
-                << " | Speed: " << r.speed 
-                << " | Direction: " << r.direction 
-                << " | Info: " << r.info << endl;
-        }
-    }
-
     CameraSensor camera;
 
-    cout << "\n--- scanning with Camera at (" << carX << "," << carY << ") ---\n";
+    // Simulation Loop.
+    for (int tick = 0; tick < simulationTicks; ++tick) {
+        
+        // Update World.
+        updateWorld(map); 
 
-    vector<SensorReading> cameraReadings = camera.scan(carX, carY, carDir, map);
-
-    if(cameraReadings.empty()) {
-        cout << "No objects detected in range.\n";
-    } else {
-        for (const auto& r : cameraReadings) {
-            cout << "Found: " << r.type << " | ID: " << r.objectId 
-                << " | Distance: " << r.distance 
-                << " | Confidence: " << r.confidence 
-                << " | Speed: " << r.speed 
-                << " | X: " << r.x
-                << " | Y: " << r.y
-                << " | Direction: " << r.direction 
-                << " | Info: " << r.info << endl;
+        // Print Current Sate.
+        cout << "--- Tick: " << tick + 1 << " / " << simulationTicks << " ---" << endl;
+        cout << "GPS Target: ";
+        if(!gpsPoints.empty()) {
+            cout << "(" << gpsPoints[0].first << ", " << gpsPoints[0].second << ")";
         }
-    }
-
-    cout <<"\n";
-
-    Fuse fusedLidarReadings = fuseLidarData(lidarReadings, newMinConfidenceThreshold);
-    Fuse fusedRadarReadings = fuseRadarData(radarReadings, newMinConfidenceThreshold);
-    Fuse fusedCameraReadings =fuseCameraData(cameraReadings, newMinConfidenceThreshold);
-
-    Fuse fusedAll = fuseAllSensors(fusedLidarReadings,fusedRadarReadings,fusedCameraReadings);
-
-    for (const auto& [id, vec] : fusedAll) {
-        for (const auto& d : vec) {
-            std::cout << " Id: " <<d.objectId << " | Type: " << d.type << " | Distance: "
-                    << d.distance << " | Confidence: " << d.confidence << " | X: "
-                    << d.x << " | Y: " << d.y << " | Speed: "
-                    << d.speed << " | Dir: " << d.direction
-                    << " | Info: " << d.info << "\n";
+        else {
+            cout << "NONE";
         }
+        cout << " | Car Pos: (" << carX << ", " << carY << ") | Speed: " << carSpeed << endl;
+        
+        printMap(dimX, dimY, map);
+
+        // Scanning.
+        auto lidarReadings = lidar.scan(carX, carY, carDir, map);
+        auto radarReadings = radar.scan(carX, carY, carDir, map);
+        auto cameraReadings = camera.scan(carX, carY, carDir, map);
+
+        // Sensor Fusion.
+        auto fLidar = fuseLidarData(lidarReadings, newMinConfidenceThreshold);
+        auto fRadar = fuseRadarData(radarReadings, newMinConfidenceThreshold);
+        auto fCamera = fuseCameraData(cameraReadings, newMinConfidenceThreshold);
+        auto fusedAll = fuseAllSensors(fLidar, fRadar, fCamera);
+
+        // Decision Making.
+        auto decision = decideNextMove(carX, carY, carDir, carSpeed, fusedAll, gpsPoints);
+        char nextDir = decision.first;
+        char speedAction = decision.second;
+
+        cout << "Decision -> Turn: " << nextDir << ", Action: " << speedAction << endl;
+
+        // Update Auto Car's State.
+        
+        // Update Speed.
+        if (speedAction == 'A' && carSpeed < 2) {
+            carSpeed++;
+        }
+        if (speedAction == 'D' && carSpeed > 0) {
+            carSpeed--;
+        }
+
+        // Update Direction.
+        carDir = nextDir;
+
+        // Update Car's Object.
+        if (speedAction == 'A') {
+            myCarPtr->accelerate();
+        }
+        if (speedAction == 'D') {
+            myCarPtr->decelerate();
+        }
+
+        // Movement Execution in Map.
+        if (carSpeed > 0) {
+            int newX = carX;
+            int newY = carY;
+
+            // Calculate new Coordinates.
+            if (carDir == 'N') {
+                newY--;
+            }
+            else if (carDir == 'S') {
+                newY++;
+            }
+            else if (carDir == 'E') {
+                newX++;
+            }
+            else if (carDir == 'W') {
+                newX--;
+            }
+
+            // Bounds Check.
+            if (newX >= 0 && newX < dimX && newY >= 0 && newY < dimY) {
+                // Collision Check.
+                bool blocked = !map[newX][newY].staticObjects.empty() || !map[newX][newY].movingObjects.empty();
+                
+                if (!blocked) {
+                    // Move in Map.
+                    map[newX][newY].car.push_back(myCarPtr); //add to new cell
+                    map[carX][carY].car.clear(); //delete from old cell
+                    carX = newX;
+                    carY = newY;
+                } else {
+                    // Immobilization due to Obstacle
+                    cout << "(!) Movement Blocked by object at (" << newX << "," << newY << ")!" << endl;
+                    carSpeed = 0;
+                    myCarPtr->decelerate(); 
+                }
+            } else {
+                cout << "(!) Hit World Boundary!" << endl;
+                carSpeed = 0;
+            }
+        }
+
+        // GPS' Goal Check.
+        if (!gpsPoints.empty()) {
+            // Manhattan Distance.
+            int d = abs(carX - gpsPoints[0].first) + abs(carY - gpsPoints[0].second);
+
+            // If we Reach the Goal (or near).
+            if (d <= 1) {
+                cout << "\nREACHED CHECKPOINT (" << gpsPoints[0].first << "," << gpsPoints[0].second << ")\n";
+                gpsPoints.erase(gpsPoints.begin()); //delete goal
+                std::this_thread::sleep_for(std::chrono::seconds(1)); //pause
+            }
+        }
+
+        // All Goals Completed.
+        if (gpsPoints.empty()) {
+            cout << "\nMISSION ACCOMPLISHED! ALL TARGETS REACHED\n";
+            break; //end of program
+        }
+
+        // Small pause for better visualisation.
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
-
-
-    auto move = decideNextMove(carX, carY, carDir, carSpeed, fusedAll, gpsPoints);
-    cout << "Direction: " << move.first << ", Speed Action: " << move.second << endl;
 
     return 0;
 }

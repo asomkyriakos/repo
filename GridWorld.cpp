@@ -21,6 +21,10 @@ string MovingObjects::getGlyph() const {
 string MovingObjects::getId() const {
      return id; 
 }
+void MovingObjects::setPosition(int nx, int ny) {
+    x = nx;
+    y = ny;
+}
 
 // StaticObject
 StaticObject::StaticObject(string i, string g, int xc, int xy): id(i), glyph(g), x(xc), y(xy) {
@@ -70,6 +74,15 @@ TrafficLights::~TrafficLights() {
 }
 char TrafficLights::getColour()const {
     return colour;
+}
+void TrafficLights::updateTrafficLight() {
+    tick++;
+    if (tick > 10) { //change after 10 ticks
+        tick = 0;
+        if (colour == 'R') colour = 'G';
+        else if (colour == 'G') colour = 'Y';
+        else if (colour == 'Y') colour = 'R';
+    }
 }
 
 // Vehicle

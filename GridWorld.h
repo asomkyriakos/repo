@@ -17,6 +17,8 @@ public:
     int getY() const;
     string getGlyph() const;
     string getId() const;
+
+    void setPosition(int nx, int ny);
 };
 
 // Base class for static objects
@@ -63,6 +65,8 @@ public:
     TrafficLights(string id, string glyph, int x, int y, char col, int tck);
     ~TrafficLights();
     char getColour() const;
+
+    void updateTrafficLight();
 };
 
 // Moving vehicles (cars and bikes)

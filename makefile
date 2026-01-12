@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -O2
 TARGET = simulation
-SRCS = main.cpp GridWorld.cpp CreateWorld.cpp Sensors.cpp SelfDrivingCar.cpp FuseSensorData.cpp DecisionMaking.cpp
+SRCS = main.cpp GridWorld.cpp CreateWorld.cpp Sensors.cpp SelfDrivingCar.cpp FuseSensorData.cpp DecisionMaking.cpp UpdateWorld.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 all: $(TARGET)
