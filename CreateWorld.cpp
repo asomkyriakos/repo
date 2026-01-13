@@ -35,7 +35,8 @@ Grid createWorld(
         case 4:  direction = 'W'; x--; break;
     }
     char glyph = '@';
-    Car* selfDrivingCar = new Car(0 ,direction , glyph);
+    int speed = 0;
+    Car* selfDrivingCar = new Car(speed ,direction , glyph);
     world[x][y].car.push_back(selfDrivingCar);
 
     //Moving Cars
