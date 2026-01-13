@@ -14,7 +14,7 @@ char Car:: getDirection() const{
     return direction;
 }
 
-char Car:: getSpeed() const{
+int Car:: getSpeed() const{
     return speed;
 }
 
