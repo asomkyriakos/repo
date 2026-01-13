@@ -13,6 +13,8 @@ $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
+	rm -f $(OBJS)
+clean-all:
 	rm -f $(OBJS) $(TARGET)
 
-.PHONY: all clean
+.PHONY: all clean clean-all
