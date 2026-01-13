@@ -85,15 +85,19 @@ pair<char,char> decideNextMove(int carX,int carY,char currentDir,int currentSpee
                 obstacleClose = true;
             }
 
-            if (obj.type == "Static" && d <= 3) {
-                obstacleClose = true;
-            }
+            // if (obj.type == "Static" && d <= 3) {
+            //     obstacleClose = true;
+            // }
         }
     }
 
     
-    if (minDist <= 5) {
+    if (minDist <= 5 && currentSpeed == 2) {
         speedAction = 'D';
+    }else if(minDist <=1 && currentSpeed == 1){
+        speedAction = 'D';
+    }else{
+        speedAction = 'A';
     }
 
     if (obstacleClose) {
