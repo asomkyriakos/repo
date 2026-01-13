@@ -342,6 +342,7 @@ int main(int argc, char* argv[]){
                 carSpeed = 0;
             }
         }
+        
 
         // GPS' Goal Check.
         if (!gpsPoints.empty()) {
