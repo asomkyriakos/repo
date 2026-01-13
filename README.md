@@ -9,6 +9,10 @@ make
 - And to clear cache of executables:
 make clean
 
+- leak check:
+  valgrind --leak-check=yes simulation --dimX 10 --dimY 10 --numMovingCars 3 --numMovingBikes 2 --numParkedCars 4 --numStopSigns 2 --numTrafficLights 2 --minConfidenceThreshold 70 --gps 2 3 7 8
+
+
 
 // TO BE DELETED //
 Πρόσθεσα στο makefile το αρχείο, στη main και το SelfDrivingCar τη βιβλιοθήκη.
