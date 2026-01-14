@@ -207,7 +207,7 @@ int main(int argc, char* argv[]){
     // Create Map.
     Grid map = createWorld(seed, dimX, dimY, numMovingCars, numMovingBikes, numParkedCars, numStopSigns, numTrafficLights);
 
-    //we start from here ,ok?
+    // Start.
     int carX = 0, carY = 0; 
     char carDir = 'N';
     int carSpeed = 0;
