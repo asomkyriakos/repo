@@ -1,53 +1,61 @@
-- Compile with:
-g++ -std=c++17 -Wall main.cpp CreateWorld.cpp GridWorld.cpp -o simulation
-- Execute with:
-./simulation --seed 42 --dimX 10 --dimY 10 --numMovingCars 3 --numMovingBikes 2 --numParkedCars 4 --numStopSigns 2 --numTrafficLights 2 --gps 2 3 7 8
-- For help run:
-./simulation --help
-- Also a make file:
-make 
-- And to clear cache of executables:
+# Self-Driving Car
+
+## Build
+
+Compile with:
+```sh
+make
+```
+
+Clear with
+```sh
 make clean
+make clean-all
+```
 
-- leak check:
-  valgrind --leak-check=yes simulation --dimX 10 --dimY 10 --numMovingCars 3 --numMovingBikes 2 --numParkedCars 4 --numStopSigns 2 --numTrafficLights 2 --minConfidenceThreshold 70 --gps 2 3 7 8
+## Usage 
+
+Execute with:
+```sh
+./simulation --'Options'
+```
+Options:
+
+    - seed num
+    - dimX num
+    - dimY num
+    - numMovingCars num
+    - numMovingBikes num
+    - numParkedCars num
+    - numStopSigns num
+    - numTrafficLights num
+    - gps num1 num2 num3 num4 ...
+
+For example:
+```sh
+./simulation --seed 42 --dimX 10 --dimY 10 --numMovingCars 3 --numMovingBikes 2 --numParkedCars 4 --numStopSigns 2 --numTrafficLights 2 --gps 2 3 7 8
+```
+
+For help run: 
+```sh
+./simulation --help
+```
+
+## Info
+
+Ο χάρτης αποθηκεύεται με μορφή vector το οποίο περιέχει vector ενσωματομένο σε ένα ακομή vector με τους τύπους δεδομένων των κλάσεων.
+Ακόμα τα δεδομένα τυπώνονται στην οθόνη καλώντας τις getGlyph() μεθόδους από κάθε αντικείμενο που βρίσκεται στον χάρτη.
+Οι sensors τραβάνε δεδόμενα από τον χάρτη με βάση τις οδηγίες που δώθηκαν και τα αξιοποιούν συναρτήσεις που ενώνουν τα δεδομένα για περαιτέρο χρήση.
+Τα ενωμένα πλέον δεδομένα χρησιμοποιούνται από μια συνάρτηση που ελέγχει τα δεδόμενα και αποφασίζει την κατεύθυνση και μεταβολή της ταχύτητας του αυτοκινήτου.
 
 
 
-// TO BE DELETED //
-Πρόσθεσα στο makefile το αρχείο, στη main και το SelfDrivingCar τη βιβλιοθήκη.
-Στη main έχω προσθέσει κάτι λίγο για έλεγχο.
 
-Μου βγάζει δύο warnings μόνο. Μήπως να αλλάξουμε στο CreatWorld.cpp το char direction; σε char direction = 'N'; στις γραμμές 33,53.
+## Authors
+**Ονοματεπώνυμο:** Ασώματος Κυριάκος 
 
-// Νεες Αλλαγες //
-Εκανα αλλαγες σε ολο τον κωδικα, ακομα δουλευω στην συγχωνευση ολων των δεδωμενων στην fuseSensorData στην τελευταια function. Πειραξα τα sensors για να επιστρεφουν τα data που επιτρεπεται το καθενα να επιστρεφει(καμερα επιστρεφει ολα τα δεδομενα, ρανταρ επιστρεφει και ταχυτητα και direction)
-Εφτιαξα την υπαρξη του αυτοκινητου στον χαρτη
-Μενει να κανω την συναρτηση και την λογικη αποφασης κινησης του αυτοκινητου
-#Cutting Arteries
+**Αριθμός Μητρώου:** 1115 2024 00010
 
-//Νεες *παλι* αλλαγες //
-εφτιαξε ενα απλο decision making
-μενει να του βαλω να επιλεγει αν θα επιταχυνει, κρατησει ταχυτητα ή αποταχυνει
+**Ονοματεπώνυμο:** Μπαλή Νεφέλη-Ειρήνη
 
-//Αλλαγές στο Sensors.cpp//
-Πρόσθεσα απλά τα cout του 4.2
-Έκανα ένα update στο camera sensor. (Πρόσθεσα και στο GridWorld μια getType)
-
-//Αλλαγες στο decisionmaking//
-Τελείωσα την επιλογη κινησης, η συναρτηση επιστρεφει κατευθυνση και αλλαγη ταχυτητας που πρεπει να γινει. Πρωτα πρεπει να αλλαξει η ταχυτητα και μετα η κινηση. Μενει να
-φτιαξουμε το σεναριο που φτανει σε ενα απο τους στοχους, να τους αφερει απο το gps ωστε να συνεχισει
-
-// Αλλαγές για το Upgrade//
-Πρόσθεσα τα δύο προγράμματα (.cpp, .h)
-Άλλαξα κάποια πράγματα και στο GridWorld (τίποτα ιδιαίτερο, πρόσθεσα απλά δύο συναρτήσεις, μία στα moving objects -για να πάρω τις συντεταγμένες- και μία στα traffic lights -για να κάνει update-)
-Πρόσθεσα συνάρτηση για να τυπώνει τον χάρτη στο main.cpp.
-Άλλαξα και κάποια πράγματα στη main μετά την 213 - αν διαφωνείς με κάτι, πες μου. (αν και δεν είμαι καθόλου σίγουρη για το να τυπώνουμε όλον τον χάρτη (του έβαλα και μια μικρή καθυστέρηση για να φαίνεται), γιατί άμα το τρέξεις, θα δεις ότι δεν είναι και πολύ ωραίο, αλλά το βλέπουμε αυτό).
-
-(Τι φάση αυτό: <//we start from here ,ok?>;)
-- ^^ Υπαρχει εδω και βδομαδες αυτο, το ειχα βαλει για να βλεπω που ξεκιναει ο κωδικας του χαρτη.
-- Οκ, το σβήνουμε μετά αν είναι
-
-Άλλαξα λίγο το makefile μόνο, για να μπορούμε να διαγράψουμε τα .o, χωρίς να μας σβήνεται και το executable.
-Αν βρω χρόνο (γιατί τώρα δεν προλαβαίνω - ίσως μέσα στη μέρα), λέω να τα ξεχωρίσω και σε φακέλους τα αρχεία.
-
+**Αριθμός Μητρώου:** 1115 2024 00134
